@@ -17,4 +17,20 @@
         <maven.compiler.testTarget>1.7</maven.compiler.testTarget>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+    <build>
+        <resources>
+            <resource>
+                <directory>../../../../propitious-octo-waddle/propitious-octo-waddle-domain/</directory>
+                <includes>
+                    <include>*</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources/</directory>
+                <includes>
+                    <include>**</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
 </project>

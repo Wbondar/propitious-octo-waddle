@@ -8,6 +8,6 @@
   <name>propitious-octo-waddle</name>
   <modules>
     <module>propitious-octo-waddle-domain</module>
-    <module>propitious-octo-waddle-client</module>
+    <module>propitious-octo-waddle-web</module>
   </modules>
 </project>
