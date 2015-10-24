@@ -9,5 +9,6 @@
   <modules>
     <module>propitious-octo-waddle-domain</module>
     <module>propitious-octo-waddle-web</module>
+    <module>propitious-octo-waddle-datasource</module>
   </modules>
 </project>

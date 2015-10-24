@@ -6,6 +6,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import pl.lubcode.propitious_octo_waddle.propitious_octo_waddle_domain.Account;
 import pl.lubcode.propitious_octo_waddle.propitious_octo_waddle_domain.Exam;
 
 public final class ExamUpdate extends ApplicationServlet {

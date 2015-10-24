@@ -23,8 +23,7 @@ public final class OptionCreate extends ApplicationServlet {
 		for (int i = 0; i < descriptionsOfNewOptions.length; i++) {
 			String descriptionOfNewOption = descriptionsOfNewOptions[i];
 			String rewardForNewOption = rewardsForNewOptions[i];
-			Option newOption = Option.newInstance(creator, descriptionOfNewOption, rewardForNewOption);
-			taskToAddOptionTo.addOption(creator, newOption);
+			Option newOption = Option.newInstance(creator, taskToAddOptionTo, descriptionOfNewOption, rewardForNewOption);
 		}
 	}
 }

@@ -17,8 +17,8 @@ public final class SessionCreate extends ApplicationServlet {
 		String username = request.getParameter("username");
 		String password = request.getParameter("password");
 		Account creator = getUserAccount(request);
-		Account account = Account.getInstance(creator, username, password);
+		Account account = Account.newInstance(creator, username, password);
 		HttpSession session = request.getSession( );
-		session.setAttribute(Account.getClass( ).getName( ) + ".id", account.getId( ).toString( ));
+		session.setAttribute(account.getClass( ).getName( ) + ".id", account.getId( ).toString( ));
 	}
 }

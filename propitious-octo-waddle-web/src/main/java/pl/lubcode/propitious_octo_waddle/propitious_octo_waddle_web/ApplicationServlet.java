@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import pl.lubcode.propitious_octo_waddle.propitious_octo_waddle_domain.Account;
+import pl.lubcode.propitious_octo_waddle.propitious_octo_waddle_domain.Identificator;
 
 abstract class ApplicationServlet extends HttpServlet {
 	private final ViewFactory viewFactory;
@@ -25,7 +26,7 @@ abstract class ApplicationServlet extends HttpServlet {
 	}
 	
 	protected final Account getUserAccount (HttpServletRequest request) {
-		return Account.getInstance(request.getSession( ).getAttribute(Account.class.getName( ) + ".id"));
+		return Account.getInstance(Identificator.<Account>valueOf(request.getSession( ).getAttribute(Account.class.getName( ) + ".id")));
 	}
 	
 	@Override

@@ -6,6 +6,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import pl.lubcode.propitious_octo_waddle.propitious_octo_waddle_domain.Account;
 import pl.lubcode.propitious_octo_waddle.propitious_octo_waddle_domain.Task;
 
 public final class TaskUpdate extends ApplicationServlet {
@@ -17,6 +18,6 @@ public final class TaskUpdate extends ApplicationServlet {
 		Task poolToUpdate = Task.getInstance(idOfPoolToUpdate);
 		String updatedDescription = request.getParameter("description");
 		Account updator = getUserAccount(request);
-		poolToUpdate.updateTitle(updator, updatedDescription);
+		poolToUpdate.updateDescription(updator, updatedDescription);
 	}
 }
