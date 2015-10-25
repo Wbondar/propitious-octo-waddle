@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html layout:decorator="layout">
 <head>
 	<title>Create account.</title>
 </head>
 <body>
-<main>
+<main layout:fragment="main">
 	<article>
 		<h2>Assessment #.</h2>
 		<section data-th-each='task : ${assessment.getTasks()}'>

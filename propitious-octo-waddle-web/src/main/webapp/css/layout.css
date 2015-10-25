@@ -1,0 +1,22 @@
+nav
+{
+	background-color: crimson;
+	border-bottom: 1px solid orange;
+}
+
+nav *
+{
+	color: white;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+h1
+{
+	color: red;
+}
+
+footer
+{
+	border-top: 1px solid hotpink;
+}
