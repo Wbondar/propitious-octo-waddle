@@ -7,4 +7,12 @@
   </parent>
   <groupId>pl.lubcode.propitious-octo-waddle</groupId>
   <artifactId>propitious-octo-waddle-datasource</artifactId>
+  <dependencies>
+  	<dependency>
+  		<groupId>org.postgresql</groupId>
+  		<artifactId>postgresql</artifactId>
+  		<version>9.4-1204-jdbc4</version>
+  		<scope>runtime</scope>
+  	</dependency>
+  </dependencies>
 </project>

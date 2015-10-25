@@ -64,11 +64,11 @@ public final class Task implements Identifiable<Task>, Describable {
 		return false;
 	}
 
-	public static Task newInstance(Account creator, String description) {
+	public static Task newInstance(Account creator, Class<? extends Behaviour> classOfBehaviour, String description) {
 		try
 		{
 			DataAccessObject dao = DataAccessObject.getInstance( );
-			Data<Task> data = dao.<Task>retrieve("{CALL task_create(?, ?)}", creator.getId( ).longValue( ), description);
+			Data<Task> data = dao.<Task>retrieve("{CALL task_create(?, ?, ?)}", creator.getId( ).longValue( ), classOfBehaviour.getSimpleName( ), description);
 			Identificator<Task> id = data.getId( );
 			return new Task (id, new PlainTextDescription(description));
 		} catch (DataAccessObjectException e) {

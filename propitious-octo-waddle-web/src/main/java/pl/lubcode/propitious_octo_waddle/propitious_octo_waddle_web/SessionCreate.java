@@ -24,10 +24,18 @@ public final class SessionCreate extends ApplicationServlet {
 	throws IOException, ServletException 
 	{
 		String username = request.getParameter("username");
+		if (username == null && !username.isEmpty( )) {
+			throw new RuntimeException ("Username is missing.");
+		}
 		String password = request.getParameter("password");
-		Account creator = getUserAccount(request);
-		Account account = Account.newInstance(creator, username, password);
-		HttpSession session = request.getSession( );
-		session.setAttribute(account.getClass( ).getName( ) + ".id", account.getId( ).toString( ));
+		if (password == null && !password.isEmpty( )) {
+			throw new RuntimeException ("Password is missing.");
+		}
+		Account account = getUserAccount(request);
+		if (account == null) {
+			account = Account.getInstance(username, password);
+			HttpSession session = request.getSession( );
+			session.setAttribute(account.getClass( ).getName( ) + ".id", account.getId( ).toString( ));	
+		}
 	}
 }

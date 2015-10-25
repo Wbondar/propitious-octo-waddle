@@ -11,7 +11,7 @@ CREATE TABLE accounts
 CREATE TABLE task_types
 (
 	id SMALLSERIAL NOT NULL PRIMARY KEY,
-	behaviour_name VARCHAR(100) NOT NULL UNIQUE
+	class_name VARCHAR(100) NOT NULL UNIQUE
 )
 ;
 
@@ -30,7 +30,7 @@ CREATE TABLE options
 	task_id BIGINT NOT NULL,
 	description TEXT NOT NULL,
 	reward SMALLINT NOT NULL,
-	FOREIGN KEY (task_id) REFERENCES task (id)
+	FOREIGN KEY (task_id) REFERENCES tasks (id)
 )
 ;
 
@@ -72,7 +72,7 @@ CREATE TABLE exams_pools
 -- Views.
 
 CREATE VIEW standard_accounts AS 
-SELECT id, username
+SELECT id, username, password
 FROM accounts
 ;
 
@@ -82,8 +82,8 @@ FROM options
 ;
 
 CREATE VIEW standard_tasks AS 
-SELECT id, type_id, description 
-FROM task 
+SELECT tasks.id, task_types.class_name, description 
+FROM tasks JOIN task_types ON tasks.type_id = task_types.id
 ;
 
 CREATE VIEW standard_pools AS 
@@ -96,42 +96,60 @@ SELECT pools_tasks.pool_id, standard_tasks.*
 FROM pools_tasks JOIN standard_tasks ON pools_tasks.task_id = standard_tasks.id 
 ;
 
+CREATE VIEW shuffled_pools_tasks AS 
+SELECT * 
+FROM standard_pools_tasks
+ORDER BY RANDOM( )
+;
+
 CREATE VIEW standard_exams AS 
 SELECT id, title 
 FROM exams 
 ;
 
 CREATE VIEW standard_exams_pools AS 
-SELECT exams_pools.exam_id, standard_pools.*,  
-FROM exams_pools.exam_id JOIN standard_pools ON exam_pools.pool_id = standard_pools.id 
+SELECT exams_pools.exam_id, standard_pools.*, exams_pools.tasks
+FROM exams_pools JOIN standard_pools ON exams_pools.pool_id = standard_pools.id 
 ;
 
 -- Stored procedures.
 
-CREATE FUNCTION account_create (arg_creator_id BIGINT NULL, arg_username VARCHAR(100), arg_password TEXT)
+CREATE FUNCTION account_create (arg_creator_id BIGINT, arg_username VARCHAR(100), arg_password TEXT)
 RETURNS SETOF standard_accounts
 AS
 $$
-INSERT INTO accounts (id, username, password) 
-VALUES (DEFAULT, arg_username, arg_password)
-RETURNING (id, username)
+BEGIN
+	INSERT INTO accounts (id, username, password) 
+	VALUES (DEFAULT, arg_username, arg_password)
+	;
+	IF FOUND THEN 
+		RETURN QUERY SELECT * FROM standard_accounts WHERE id = currval('accounts_id_seq')
+		;
+	END IF 
+	;
+END
 ;
 $$
-LANGUAGE SQL
-STRICT
+LANGUAGE PLpgSQL
 ;
 
 CREATE FUNCTION pool_create (arg_creator_id BIGINT, arg_title VARCHAR(100))
 RETURNS SETOF standard_pools 
 AS 
 $$
-INSERT INTO pools (id, title) 
-VALUES (DEFAULT, arg_title)
-RETURNING (id, title)
+BEGIN
+	INSERT INTO pools (id, title) 
+	VALUES (DEFAULT, arg_title)
+	;
+	IF FOUND THEN 
+		RETURN QUERY SELECT * FROM standard_pools WHERE id = currval('pools_id_seq')
+		;
+	END IF 
+	;
+END
 ;
 $$
-LANGUAGE
-SQL
+LANGUAGE PLpgSQL
 STRICT
 ;
 
@@ -139,14 +157,17 @@ CREATE FUNCTION pool_update (arg_pool_id BIGINT, arg_updator_id BIGINT, arg_titl
 RETURNS BOOLEAN
 AS 
 $$
+BEGIN
 UPDATE pools 
 SET title = arg_title 
 WHERE id = arg_pool_id 
 ;
 SELECT TRUE 
 ;
+END
+;
 $$
-LANGUAGE SQL
+LANGUAGE PLpgSQL
 STRICT
 ;
 
@@ -154,13 +175,15 @@ CREATE FUNCTION exam_create (arg_creator_id BIGINT, arg_title VARCHAR(100))
 RETURNS SETOF standard_exams 
 AS 
 $$
+BEGIN
 INSERT INTO exams (id, title) 
 VALUES (DEFAULT, arg_title)
 RETURNING (id, title)
 ;
+END
+;
 $$
-LANGUAGE
-SQL
+LANGUAGE PLpgSQL
 STRICT
 ;
 
@@ -168,14 +191,17 @@ CREATE FUNCTION exam_update (arg_exam_id BIGINT, arg_updator_id BIGINT, arg_titl
 RETURNS BOOLEAN
 AS 
 $$
+BEGIN
 UPDATE exams 
 SEt title = arg_title 
 WHERE id = arg_exam_id 
 ;
 SELECT TRUE
 ;
+END
+;
 $$
-LANGUAGE SQL
+LANGUAGE PLpgSQL
 STRICT
 ;
 
@@ -183,24 +209,43 @@ CREATE FUNCTION option_create (arg_creator_id BIGINT, arg_task_id BIGINT, arg_de
 RETURNS SETOF standard_options 
 AS 
 $$
-INSERT INTO options (id, task_id, description, reward) 
-VALUES (DEFAULT, arg_task_id, arg_description, arg_reward)
-RETURNING (id, task_id, description, reward)
+BEGIN
+	INSERT INTO options (id, task_id, description, reward) 
+	VALUES (DEFAULT, arg_task_id, arg_description, arg_reward)
+	;
+	IF FOUND THEN
+		RETURN QUERY SELECT * FROM standard_options WHERE id = currval('options_id_seq'); 
+	END IF 
+	;
+END
 ;
 $$
-LANGUAGE SQL 
+LANGUAGE PLpgSQL 
 STRICT 
 ;
 
-CREATE FUNCTION task_create (arg_creator_id BIGINT, arg_description TEXT)
+CREATE FUNCTION task_create (arg_creator_id BIGINT, arg_class_name VARCHAR(100), arg_description TEXT)
 RETURNS SETOF standard_tasks 
 AS 
 $$
-INSERT INTO tasks (id, type_id, description) 
-VALUES (DEFAULT, DEFAULT, arg_description)
+DECLARE
+	var_type_id SMALLINT;
+BEGIN
+	SELECT id INTO var_type_id 
+	FROM task_types 
+	WHERE class_name = arg_class_name 
+	;
+	INSERT INTO tasks (id, type_id, description) 
+	VALUES (DEFAULT, var_type_id, arg_description)
+	;
+	IF FOUND THEN 
+		RETURN QUERY SELECT * FROM standard_tasks WHERE id = currval('tasks_id_seq');
+	END IF  
+	;
+END
 ;
 $$
-LANGUAGE SQL 
+LANGUAGE PLpgSQL 
 STRICT 
 ;
 
@@ -208,14 +253,20 @@ CREATE FUNCTION task_update (arg_task_id BIGINT, arg_description TEXT)
 RETURNS BOOLEAN 
 AS 
 $$
-UPDATE tasks 
-SET description = arg_description 
-WHERE id = arg_task_id
-;
-SELECT TRUE
+BEGIN
+	UPDATE tasks 
+	SET description = arg_description 
+	WHERE id = arg_task_id
+	;
+	IF FOUND THEN
+		SELECT TRUE
+		;
+	END IF 
+	;
+END
 ;
 $$
-LANGUAGE SQL 
+LANGUAGE PLpgSQL 
 STRICT 
 ;
 
@@ -223,15 +274,21 @@ CREATE FUNCTION option_update (arg_option_id BIGINT, arg_updator_id BIGINT, arg_
 RETURNS BOOLEAN
 AS 
 $$
-UPDATE options 
-SET description = arg_description,
-SET reward = arg_reward 
-WHERE options.id = arg_option_id 
-;
-SELECT TRUE
+BEGIN
+	UPDATE options 
+	SET description = arg_description,
+	 reward = arg_reward 
+	WHERE options.id = arg_option_id 
+	;
+	IF FOUND THEN
+		SELECT TRUE
+		;
+	END IF 
+	;
+END
 ;
 $$
-LANGUAGE SQL 
+LANGUAGE PLpgSQL 
 STRICT 
 ;
 
@@ -239,14 +296,20 @@ CREATE FUNCTION option_update_description (arg_option_id BIGINT, arg_updator_id 
 RETURNS BOOLEAN
 AS 
 $$
-UPDATE options 
-SET description = arg_description
-WHERE options.id = arg_option_id 
-;
-SELECT TRUE
+BEGIN
+	UPDATE options 
+	SET description = arg_description
+	WHERE options.id = arg_option_id 
+	;
+	IF FOUND THEN
+		SELECT TRUE
+		;
+	END IF 
+	;
+END
 ;
 $$
-LANGUAGE SQL 
+LANGUAGE PLpgSQL 
 STRICT 
 ;
 
@@ -254,13 +317,19 @@ CREATE FUNCTION option_update_reward (arg_option_id BIGINT, arg_updator_id BIGIN
 RETURNS BOOLEAN
 AS 
 $$
-UPDATE options 
-SET reward = arg_reward
-WHERE options.id = arg_option_id 
-;
-SELECT TRUE
+BEGIN
+	UPDATE options 
+	SET reward = arg_reward
+	WHERE options.id = arg_option_id 
+	;
+	IF FOUND THEN
+		SELECT TRUE
+		;
+	END IF 
+	;
+END
 ;
 $$
-LANGUAGE SQL 
+LANGUAGE PLpgSQL 
 STRICT 
 ;

@@ -20,7 +20,7 @@ public class Identificator<T> extends Number {
 		if (object instanceof Number) {
 			return new Identificator<E>((Number)object);
 		}
-		throw new RuntimeException ("Argument is not a number.");
+		throw new java.lang.NumberFormatException();
 	}
 
 	@Override
@@ -41,5 +41,10 @@ public class Identificator<T> extends Number {
 	@Override
 	public long longValue() {
 		return this.number.longValue();
+	}
+	
+	@Override
+	public String toString ( ) {
+		return this.number.toString( );
 	}
 }

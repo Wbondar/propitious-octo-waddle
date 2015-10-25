@@ -78,7 +78,7 @@ public enum DataAccessObject {
 			List<Data<T>> datas = new ArrayList<Data<T>> ( );
 			while (resultSet.next( )) {
 				NativeData<T> nativeData = new NativeData<T> ( );
-				for (int i = 0; i < md.getColumnCount( ); i++) {
+				for (int i = 1; i <= md.getColumnCount( ); i++) {
 					nativeData.put(md.getColumnName(i), resultSet.getObject(i));
 				}
 				datas.add(nativeData);
@@ -99,5 +99,28 @@ public enum DataAccessObject {
 		} catch (SQLException e) {
 			throw new DataAccessObjectException (e);
 		}
+	}
+
+	public <T> Collection<Data<T>> storeAll (String sql, Object... arguments) throws DataAccessObjectException {
+		try
+		{
+			ResultSet resultSet = statementFactory.executeProcedure(sql, arguments);
+			ResultSetMetaData md = resultSet.getMetaData( );
+			List<Data<T>> datas = new ArrayList<Data<T>> ( );
+			while (resultSet.next( )) {
+				NativeData<T> nativeData = new NativeData<T> ( );
+				for (int i = 1; i <= md.getColumnCount( ); i++) {
+					nativeData.put(md.getColumnName(i), resultSet.getObject(i));
+				}
+				datas.add(nativeData);
+			}
+			return datas;
+		} catch (SQLException e) {
+			throw new DataAccessObjectException (e);
+		}
+	}
+
+	public <T> Data<T> store(String sql, Object... arguments) throws DataAccessObjectException {
+		return this.<T>storeAll(sql, arguments).iterator().next();
 	}
 }

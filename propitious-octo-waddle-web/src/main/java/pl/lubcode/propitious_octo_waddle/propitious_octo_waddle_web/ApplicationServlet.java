@@ -30,7 +30,14 @@ abstract class ApplicationServlet extends HttpServlet {
 	}
 	
 	protected final Account getUserAccount (HttpServletRequest request) {
-		return Account.getInstance(Identificator.<Account>valueOf(request.getSession( ).getAttribute(Account.class.getName( ) + ".id")));
+		Account loggedInUser = null;
+		try
+		{
+			loggedInUser = Account.getInstance(Identificator.<Account>valueOf(request.getSession( ).getAttribute(Account.class.getName( ) + ".id")));
+		} catch (NumberFormatException e) {
+			loggedInUser = null;
+		}
+		return loggedInUser;
 	}
 	
 	@Override
