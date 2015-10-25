@@ -37,5 +37,6 @@ public final class SessionCreate extends ApplicationServlet {
 			HttpSession session = request.getSession( );
 			session.setAttribute(Account.class.getName( ) + ".id", account.getId( ).toString( ));	
 		}
+		response.sendRedirect("/assessments/create");
 	}
 }

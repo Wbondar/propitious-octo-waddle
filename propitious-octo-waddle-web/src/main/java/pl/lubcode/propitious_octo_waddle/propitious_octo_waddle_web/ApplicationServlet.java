@@ -42,7 +42,7 @@ abstract class ApplicationServlet extends HttpServlet {
 		{
 			loggedInUser = Account.getInstance(Identificator.<Account>valueOf((String)session.getAttribute(Account.class.getName( ) + ".id")));
 		} catch (NumberFormatException e) {
-			throw e;
+			return null;
 		} catch (NoSuchElementException e) {
 			return null;
 		}
@@ -59,7 +59,7 @@ abstract class ApplicationServlet extends HttpServlet {
 		{
 			currentAssessment = Assessment.getInstance(Identificator.<Assessment>valueOf((String)session.getAttribute(Assessment.class.getName( ) + ".id")));
 		} catch (NumberFormatException e) {
-			throw e;
+			return null;
 		} catch (NoSuchElementException e) {
 			return null;
 		}

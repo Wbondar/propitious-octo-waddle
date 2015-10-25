@@ -5,12 +5,17 @@
 </head>
 <body>
 <main>
-<section>
-	<h2>Begin assessment.</h2>
-	<form method='POST'>
+<section data-th-each='exam : ${exams}'>
+	<h2 data-th-text='${exam.getTitle( )}'>Begin assessment.</h2>
+	<ul>
+		<li data-th-each='pool : ${exam.getPools( )}'>
+			<p data-th-text='${pool.getTitle( )}'>Title of the pool.</p>
+		</li>
+	</ul>
+	<form data-th-action='@{/assessments/create}' method='POST'>
 		<fieldset>
 			<legend>Confirmation of the beginning of a new assessment.</legend>
-			<input type='hidden' name='id' value='id of exam'/>
+			<input type='hidden' name='exam_id' data-th-value='${exam.getId( )}'/>
 			<input type='submit'/>
 		</fieldset>
 	</form>

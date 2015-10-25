@@ -7,20 +7,32 @@
 <main>
 	<article>
 		<h2>Assessment #.</h2>
-		<section>
+		<section data-th-each='task : ${assessment.getTasks()}'>
 			<h3>Task.</h3>
-			<a>See solved task.</a>
-		</section>
-		<section>
-			<h3>Student.</h3>
-			<a>See interviewed person.</a>
-		</section>
-		<section>
-			<h3>Score.</h3>
-			<table>
-				<tr><td>Provided answer.</td><td>Score.</td></tr>
-			</table>
-			<p>Total score.</p>
+			<section>
+				<h4>Description of the task.</h4>
+				<p data-th-text='${task.getDescription()}'>Content of the description.</p>
+			</section>
+			<section>
+				<h4>Options.</h4>
+				<ul>
+					<li data-th-each='option : ${task.getOptions( )}'><p data-th-text='${option.getDescription( )}'></p></li>
+				</ul>
+			</section>
+			<section>
+				<h4>Provide answer.</h4>
+				<form data-th-action='@{/answers/create}' method='POST'>
+					<input type='hidden' name='task_id' data-th-value='${task.getId( )}' />
+					<fieldset>
+						<legend>Answer parameters.</legend>
+						<label>
+							Content of the answer.
+							<input type='text' name='input' />
+						</label>
+						<input type='submit' />
+					</fieldset>
+				</form>
+			</section>
 		</section>
 	</article>
 </main>

@@ -1,12 +1,25 @@
 package pl.lubcode.propitious_octo_waddle.propitious_octo_waddle_domain;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Set;
+
 public final class Exam implements Identifiable<Exam> {
 	private final Identificator<Exam> id;
 	private final String title;
+	private Set<Pool> pools = null;
 	
 	private Exam(Identificator<Exam> id, String title) {
 		this.id = id;
 		this.title = title;
+	}
+	
+	public Set<Pool> getPools ( ) {
+		if (pools == null)
+		{
+			pools = Pool.getInstances(id);
+		}
+		return pools;
 	}
 
 	public static Exam newInstance(Account creator, String title) {
@@ -62,5 +75,22 @@ public final class Exam implements Identifiable<Exam> {
 
 	public boolean destroy(Account destroyer) {
 		return false;
+	}
+
+	public static Collection<Exam> getInstances() {
+		try
+		{
+			DataAccessObject dao = DataAccessObject.getInstance( );
+			Collection<Data<Exam>> datas = dao.<Exam>retrieveAll("SELECT * FROM standard_exams ORDER BY title;");
+			ArrayList<Exam> exams = new ArrayList<Exam> ( );
+			for (Data<Exam> data : datas) {
+				Identificator<Exam> id = data.getId( );
+				String title = data.getString("title");
+				exams.add(new Exam (id, title));
+			}
+			return exams;
+		} catch (DataAccessObjectException e) {
+			throw new RuntimeException ("Failed to retrieve exams.", e);
+		}
 	}
 }

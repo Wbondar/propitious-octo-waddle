@@ -1,5 +1,9 @@
 package pl.lubcode.propitious_octo_waddle.propitious_octo_waddle_domain;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 public final class Pool implements Identifiable<Pool> {
 	private final Identificator<Pool> id;
 	private final String title;
@@ -61,5 +65,24 @@ public final class Pool implements Identifiable<Pool> {
 			throw new RuntimeException ("Failed to update pool.", e);
 		}
 		return this;
+	}
+
+	public static Set<Pool> getInstances(Identificator<Exam> id) {
+		try
+		{
+			DataAccessObject dao = DataAccessObject.getInstance( );
+			Collection<Data<Pool>> datas = dao.<Pool>retrieveAll("SELECT * FROM standard_exams_pools WHERE exam_id = ?;", id.longValue( ));
+			Set<Pool> pools = new HashSet<Pool> ( );
+			for (Data<Pool> data : datas) {
+				Identificator<Pool> poolId = data.getId( );
+				if (poolId != null)
+				{
+					pools.add(new Pool (poolId, data.getString("title")));	
+				}
+			}
+			return pools;
+		} catch (DataAccessObjectException e) {
+			throw new RuntimeException ("Failed to retrieve options by task id.", e);
+		}
 	}
 }

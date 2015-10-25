@@ -19,6 +19,10 @@ public final class Task implements Identifiable<Task>, Describable {
 	private Task(Identificator<Task> id, Description description) {
 		this(id, description, Collections.<Option>emptySet( ));
 	}
+	
+	public Set<Option> getOptions ( ) {
+		return options;
+	}
 
 	@Override
 	public Description getDescription ( ) {

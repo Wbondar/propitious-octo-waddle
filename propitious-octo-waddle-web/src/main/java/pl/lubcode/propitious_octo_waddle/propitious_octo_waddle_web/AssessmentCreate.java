@@ -22,6 +22,10 @@ public final class AssessmentCreate extends ApplicationServlet {
 		if (account == null) {
 			throw new RuntimeException ("Log in to the system first.");
 		}
+		Assessment currentAssessment = getCurrentAssessment(request);
+		if (currentAssessment != null) {
+			throw new RuntimeException ("Assessment is on-going.");
+		}
 		Exam exam = Exam.getInstance(request.getParameter("exam_id"));
 		if (exam != null) {
 			Assessment assessment = Assessment.newInstance(exam, account);
@@ -30,5 +34,13 @@ public final class AssessmentCreate extends ApplicationServlet {
 		} else {
 			throw new RuntimeException ("Exam does not exist.");
 		}
+		response.sendRedirect("/assessments/retrieve");
+	}
+	
+	@Override
+	public void doGet (HttpServletRequest request, HttpServletResponse response)
+	throws ServletException, IOException {
+		request.setAttribute("exams", Exam.getInstances( ));
+		super.doGet(request, response);
 	}
 }

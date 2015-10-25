@@ -50,7 +50,7 @@ public final class Assessment implements Identifiable<Assessment> {
 				}
 			}
 		} catch (DataAccessObjectException e) {
-			throw new RuntimeException ("Failed to create assessment.");
+			throw new RuntimeException ("Failed to create assessment.", e);
 		}
 		return null;
 	}
@@ -77,5 +77,9 @@ public final class Assessment implements Identifiable<Assessment> {
 		} catch (DataAccessObjectException e) {
 			throw new RuntimeException ("Failed to retrieve exam.", e);
 		}
+	}
+	
+	public static Assessment getInstance (String id) {
+		return getInstance(Identificator.<Assessment>valueOf(id));
 	}
 }
