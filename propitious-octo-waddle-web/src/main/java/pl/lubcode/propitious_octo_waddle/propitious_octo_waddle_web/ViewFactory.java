@@ -41,15 +41,30 @@ enum ViewFactory {
 	public void process
 	(
 		HttpServletRequest request, 
-		HttpServletResponse response
+		HttpServletResponse response,
+		String pathToTemplate
 	)
 	throws IOException {
 
 		WebContext webContext = getContext(request, response);
 		Enumeration<String> names = request.getAttributeNames( );
-		for (String name = names.nextElement( ); names.hasMoreElements( );) {
+		while (names.hasMoreElements( )) {
+			String name = names.nextElement( );
 			webContext.setVariable(name, request.getAttribute(name));
 		}
-		this.process(request, response, request.getContextPath( ), webContext);
+		this.process(request, response, pathToTemplate, webContext);
+	}
+	
+	public void process 
+	(
+			HttpServletRequest request,
+			HttpServletResponse response
+	)
+	throws IOException {
+		String pathToTemplate = request.getRequestURI().substring(request.getContextPath().length() + 1);
+		if (pathToTemplate == null || pathToTemplate.isEmpty( )) {
+			pathToTemplate = "index";
+		}
+		process(request, response, pathToTemplate);
 	}
 }

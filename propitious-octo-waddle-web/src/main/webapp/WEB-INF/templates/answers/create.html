@@ -6,13 +6,14 @@
 <body>
 <main>
 <section>
-	<h2>Update exam.</h2>
+	<h2>Provide answer.</h2>
 	<form>
+		<input type='hidden' name='task_id' value='id of task to provide answer to' />
 		<fieldset>
-			<legend>Exam parameters.</legend>
+			<legend>Answer parameters.</legend>
 			<label>
-				Title of exam.
-				<input type='text' name='title'/>
+				Content of the answer.
+				<input type='text' name='input' />
 			</label>
 			<input type='submit' />
 		</fieldset>

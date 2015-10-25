@@ -2,7 +2,6 @@ package pl.lubcode.propitious_octo_waddle.propitious_octo_waddle_domain;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Set;
 
 public final class ImmutableCollection<E> implements Collection<E> {
 	private final Object[] elements;

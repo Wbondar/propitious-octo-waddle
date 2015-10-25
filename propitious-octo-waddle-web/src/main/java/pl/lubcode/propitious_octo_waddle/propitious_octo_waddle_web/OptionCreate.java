@@ -10,7 +10,16 @@ import pl.lubcode.propitious_octo_waddle.propitious_octo_waddle_domain.Account;
 import pl.lubcode.propitious_octo_waddle.propitious_octo_waddle_domain.Task;
 import pl.lubcode.propitious_octo_waddle.propitious_octo_waddle_domain.Option;
 
+
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(name="OptionCreate",urlPatterns={"/options/create"})
 public final class OptionCreate extends ApplicationServlet {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5671547817304589826L;
+
 	@Override
 	public void doPost (HttpServletRequest request, HttpServletResponse response)
 	throws IOException, ServletException 

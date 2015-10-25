@@ -8,7 +8,16 @@ import javax.servlet.http.HttpServletResponse;
 
 import pl.lubcode.propitious_octo_waddle.propitious_octo_waddle_domain.*;
 
+
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(name="ExamDestroy",urlPatterns={"/exams/destroy"})
 public final class ExamDestroy extends ApplicationServlet {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4508581202543734496L;
+
 	@Override
 	public void doPost (HttpServletRequest request, HttpServletResponse response)
 	throws IOException, ServletException 

@@ -11,6 +11,10 @@ import pl.lubcode.propitious_octo_waddle.propitious_octo_waddle_domain.Account;
 import pl.lubcode.propitious_octo_waddle.propitious_octo_waddle_domain.Identificator;
 
 abstract class ApplicationServlet extends HttpServlet {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2596917501494935620L;
 	private final ViewFactory viewFactory;
 	
 	ApplicationServlet (ViewFactory viewFactory) {

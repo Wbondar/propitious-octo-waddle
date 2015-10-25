@@ -1,6 +1,10 @@
 package pl.lubcode.propitious_octo_waddle.propitious_octo_waddle_domain;
 
 public final class Reward extends Number {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3592580582034538454L;
 	private final int amount;
 	
 	Reward (int amount) {

@@ -18,7 +18,7 @@ public class Identificator<T> extends Number {
 	
 	public static <E> Identificator<E> valueOf (Object object) {
 		if (object instanceof Number) {
-			return new Identificator((Number)object);
+			return new Identificator<E>((Number)object);
 		}
 		throw new RuntimeException ("Argument is not a number.");
 	}

@@ -9,7 +9,16 @@ import javax.servlet.http.HttpServletResponse;
 import pl.lubcode.propitious_octo_waddle.propitious_octo_waddle_domain.Account;
 import pl.lubcode.propitious_octo_waddle.propitious_octo_waddle_domain.Pool;
 
+
+import javax.servlet.annotation.WebServlet;
+
+@WebServlet(name="PoolUpdate",urlPatterns={"/pools/update"})
 public final class PoolUpdate extends ApplicationServlet {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2068639133287944225L;
+
 	@Override
 	public void doPost (HttpServletRequest request, HttpServletResponse response)
 	throws IOException, ServletException 

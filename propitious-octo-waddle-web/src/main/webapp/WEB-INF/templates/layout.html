@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Application.</title>
+	<title layout:title-pattern="$DECORATOR_TITLE | $CONTENT_TITLE" >Application.</title>
 	<link rel='stylesheet' href='css/layout.css'/>
 </head>
 <body>
@@ -10,17 +10,17 @@
 			<h1>Application.</h1>
 		</header>
 		<nav>
-			<a>Sign up.</a>
-			<a>Log in.</a>
-			<a>Log out.</a>
-			<a>Tasks.</a>
-			<a>Pools.</a>
-			<a>Exams.</a>
+			<a href='accounts/create'>Sign up.</a>
+			<a href='sessions/create'>Log in.</a>
+			<a href='sessions/destroy'>Log out.</a>
+			<a href='tasks/retrieve'>Tasks.</a>
+			<a href='pools/retrieve'>Pools.</a>
+			<a href='exams/retrieve'>Exams.</a>
 		</nav>
-		<main>
+		<main layout:fragment="main" >
 			Some random text here.
 		</main>
-		<aside>
+		<aside layout:fragment="aside">
 		</aside>
 		<footer>
 			wbondarenko@programmer.net 2015

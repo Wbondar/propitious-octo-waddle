@@ -53,6 +53,10 @@ public final class Account implements Identifiable<Account> {
 	public final Identificator<Account> getId ( ) {
 		return this.id;
 	}
+	
+	public final String getName ( ) {
+		return this.username;
+	}
 
 	public static Account getInstance(Identificator<Account> id) {
 		try

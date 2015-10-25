@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 public enum NativeStatementFactory implements StatementFactory {
 	INSTANCE;
@@ -24,30 +23,37 @@ public enum NativeStatementFactory implements StatementFactory {
 	}
 	
 	public boolean execute(String sql, Object... arguments) throws SQLException {
+		Connection connection = null;
 		try
-		(
-			Connection connection = connectionFactory.getConnection( );
-		)
 		{
-				PreparedStatement preparedStatement = connection.prepareStatement(sql);
-				for (int i = 0; i < arguments.length; i++) {
-					preparedStatement.setObject(i, arguments[i]);
-				}
-				return preparedStatement.execute( );
+			connection = connectionFactory.getConnection( );
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			for (int i = 0; i < arguments.length; i++) {
+				preparedStatement.setObject(i, arguments[i]);
+			}
+			return preparedStatement.execute( );
+		} finally {
+			if (connection != null) {
+				connection.close( );
+			}
 		}
 	}
 
 	public ResultSet executeQuery(String sql, Object... arguments) throws SQLException {
+
+		Connection connection = null;
 		try
-		(
-			Connection connection = connectionFactory.getConnection( );
-		)
 		{
+			connection = connectionFactory.getConnection( );
 			PreparedStatement preparedStatement = connection.prepareStatement(sql);
 			for (int i = 0; i < arguments.length; i++) {
 				preparedStatement.setObject(i, arguments[i]);
 			}
 			return preparedStatement.executeQuery( );
+		} finally {
+			if (connection != null) {
+				connection.close( );
+			}
 		}
 	}
 

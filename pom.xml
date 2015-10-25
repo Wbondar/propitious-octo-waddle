@@ -11,4 +11,22 @@
     <module>propitious-octo-waddle-web</module>
     <module>propitious-octo-waddle-datasource</module>
   </modules>
+  <build>
+	  <pluginManagement>
+	  	<plugins>
+	 		<plugin>
+		        <groupId>org.apache.tomcat.maven</groupId>
+		        <artifactId>tomcat7-maven-plugin</artifactId>
+		        <version>2.2</version>
+	          <configuration>
+	            <url>http://localhost:8080/manager/text</url>
+	            <server>localhost</server>
+	            <path>/</path>
+	            <username>admin</username>
+	            <password></password>
+	          </configuration>
+			</plugin>
+	  	</plugins>
+	  </pluginManagement>
+  </build>
 </project>
