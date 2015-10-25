@@ -8,6 +8,10 @@ CREATE TABLE accounts
 )
 ;
 
+INSERT INTO accounts (id, username, password)
+VALUES (DEFAULT, 'WBOND', '$2a$10$tBKUC4uRZ/M41FC6ej5N3uHrtsAYTFIryGTp6bNllKg6N3xcV8xH6')
+;
+
 CREATE TABLE task_types
 (
 	id SMALLSERIAL NOT NULL PRIMARY KEY,
@@ -40,6 +44,10 @@ CREATE TABLE pools
 	title VARCHAR(100) NOT NULL UNIQUE
 )
 ;
+-- Placeholder.
+INSERT INTO pools (id, title) 
+VALUES (1, 'default')
+;
 
 CREATE TABLE pools_tasks
 (
@@ -57,6 +65,10 @@ CREATE TABLE exams
 	title VARCHAR(100) NOT NULL UNIQUE
 )
 ;
+-- Placeholder.
+INSERT INTO exams (id, title) 
+VALUES (1, 'default')
+;
 
 CREATE TABLE exams_pools
 (
@@ -66,6 +78,30 @@ CREATE TABLE exams_pools
 	PRIMARY KEY (exam_id, pool_id),
 	FOREIGN KEY (exam_id) REFERENCES exams (id),
 	FOREIGN KEY (pool_id) REFERENCES pools (id)
+)
+;
+-- Placeholder.
+INSERT INTO exams_pools (exam_id, pool_id, tasks)
+VALUES (1, 1, 9999)
+;
+
+CREATE TABLE assessments 
+(
+	id BIGSERIAL NOT NULL PRIMARY KEY,
+	student_id BIGINT NOT NULL, 
+	exam_id BIGINT NOT NULL,
+	FOREIGN KEY (student_id) REFERENCES accounts (id),
+	FOREIGN KEY (exam_id) REFERENCES exams (id)
+)
+;
+
+CREATE TABLE assessments_tasks
+(
+	assessment_id BIGINT NOT NULL,
+	task_id BIGINT NOT NULL,
+	PRIMARY KEY (assessment_id, task_id),
+	FOREIGN KEY (assessment_id) REFERENCES assessments (id),
+	FOREIGN KEY (task_id) REFERENCES tasks (id)
 )
 ;
 
@@ -110,6 +146,16 @@ FROM exams
 CREATE VIEW standard_exams_pools AS 
 SELECT exams_pools.exam_id, standard_pools.*, exams_pools.tasks
 FROM exams_pools JOIN standard_pools ON exams_pools.pool_id = standard_pools.id 
+;
+
+CREATE VIEW standard_assessments AS 
+SELECT id, exam_id, student_id
+FROM assessments 
+;
+
+CREATE VIEW standard_assessments_tasks AS 
+SELECT assessments_tasks.assessment_id, standard_tasks.*
+FROM assessments_tasks JOIN standard_tasks ON assessments_tasks.task_id = standard_tasks.id
 ;
 
 -- Stored procedures.
@@ -205,7 +251,7 @@ LANGUAGE PLpgSQL
 STRICT
 ;
 
-CREATE FUNCTION option_create (arg_creator_id BIGINT, arg_task_id BIGINT, arg_descripton TEXT, arg_reward SMALLINT)
+CREATE FUNCTION option_create (arg_creator_id BIGINT, arg_task_id BIGINT, arg_description TEXT, arg_reward SMALLINT)
 RETURNS SETOF standard_options 
 AS 
 $$
@@ -235,10 +281,22 @@ BEGIN
 	FROM task_types 
 	WHERE class_name = arg_class_name 
 	;
+	IF NOT FOUND THEN 
+		INSERT INTO task_types (id, class_name) 
+		VALUES (DEFAULT, arg_class_name)
+		;
+		SELECT currval('task_types_id_seq') INTO var_type_id
+		;
+	END IF
+	;
 	INSERT INTO tasks (id, type_id, description) 
 	VALUES (DEFAULT, var_type_id, arg_description)
 	;
-	IF FOUND THEN 
+	IF FOUND THEN
+		-- Placeholder. 
+		INSERT INTO pools_tasks (pool_id, task_id)
+		VALUES (1, currval('tasks_id_seq'))
+		;
 		RETURN QUERY SELECT * FROM standard_tasks WHERE id = currval('tasks_id_seq');
 	END IF  
 	;
@@ -331,5 +389,40 @@ END
 ;
 $$
 LANGUAGE PLpgSQL 
+STRICT 
+;
+
+CREATE FUNCTION assessment_create (arg_exam_id BIGINT, arg_student_id BIGINT)
+RETURNS SETOF standard_assessments 
+AS 
+$$
+DECLARE
+	var_pool RECORD;
+	var_assessment_id BIGINT;
+BEGIN
+	INSERT INTO assessments (id, exam_id, student_id)
+	VALUES (DEFAULT, arg_exam_id, arg_student_id)
+	;
+	IF FOUND THEN
+		SELECT currval('assessments_id_seq') INTO var_assessment_id
+		;
+		FOR var_pool IN SELECT * FROM standard_exams_pools WHERE exam_id = arg_exam_id LOOP
+			EXECUTE 
+				'INSERT INTO assessments_tasks (assessment_id, task_id) 
+				SELECT ' || var_assessment_id || ', shuffled_pools_tasks.id 
+				FROM shuffled_pools_tasks 
+				WHERE shuffled_pools_tasks.pool_id = ' || var_pool.id ||
+				' LIMIT ' || var_pool.tasks
+			;
+		END LOOP
+		;
+		RETURN QUERY SELECT * FROM standard_assessments WHERE id = currval('assessments_id_seq')
+		;
+	END IF 
+	;
+END
+;
+$$
+LANGUAGE PLpgsQL 
 STRICT 
 ;

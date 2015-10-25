@@ -1,6 +1,8 @@
 package pl.lubcode.propitious_octo_waddle.propitious_octo_waddle_domain;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 public final class Task implements Identifiable<Task>, Describable {
@@ -68,11 +70,38 @@ public final class Task implements Identifiable<Task>, Describable {
 		try
 		{
 			DataAccessObject dao = DataAccessObject.getInstance( );
-			Data<Task> data = dao.<Task>retrieve("{CALL task_create(?, ?, ?)}", creator.getId( ).longValue( ), classOfBehaviour.getSimpleName( ), description);
+			assert creator != null;
+			assert classOfBehaviour != null;
+			assert description != null && !description.isEmpty( );
+			Data<Task> data = dao.<Task>store("{CALL task_create(?, ?, ?)}", creator.getId( ).longValue( ), classOfBehaviour.getSimpleName( ), description);
 			Identificator<Task> id = data.getId( );
 			return new Task (id, new PlainTextDescription(description));
 		} catch (DataAccessObjectException e) {
 			throw new RuntimeException ("Failed to create task.", e);
+		}
+	}
+
+	public static Set<Task> getAssessmentInstances (Identificator<Assessment> id) {
+		try
+		{
+			DataAccessObject dao = DataAccessObject.getInstance( );
+			Collection<Data<Task>> datas = dao.<Task>retrieveAll("SELECT * FROM standard_assessments_tasks WHERE assessment_id = ?;", id.longValue( ));
+			Set<Task> tasks = new HashSet<Task> ( );
+			for (Data<Task> data : datas) {
+				Identificator<Task> taskId = data.getId( );
+				if (taskId != null)
+				{
+					String description = data.getString("description");
+					Set<Option> options = Option.getInstances(taskId);
+					if (options != null && !options.isEmpty( )) {
+						tasks.add(new Task (taskId, new PlainTextDescription (description), options));	
+					}
+					tasks.add(new Task (taskId, new PlainTextDescription (description)));	
+				}
+			}
+			return tasks;
+		} catch (DataAccessObjectException e) {
+			throw new RuntimeException ("Failed to retrieve options by task id.", e);
 		}
 	}
 }

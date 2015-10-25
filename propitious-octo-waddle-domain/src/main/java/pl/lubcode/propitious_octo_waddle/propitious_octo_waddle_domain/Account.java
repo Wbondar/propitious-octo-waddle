@@ -50,6 +50,9 @@ public final class Account implements Identifiable<Account> {
 	}
 
 	public static Account getInstance(Identificator<Account> id) {
+		if (id == null) {
+			return null;
+		}
 		try
 		{
 			DataAccessObject dao = DataAccessObject.getInstance( );

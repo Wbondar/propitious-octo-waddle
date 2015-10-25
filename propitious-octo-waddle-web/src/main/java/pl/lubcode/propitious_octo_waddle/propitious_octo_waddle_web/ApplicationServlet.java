@@ -1,13 +1,16 @@
 package pl.lubcode.propitious_octo_waddle.propitious_octo_waddle_web;
 
 import java.io.IOException;
+import java.util.NoSuchElementException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import pl.lubcode.propitious_octo_waddle.propitious_octo_waddle_domain.Account;
+import pl.lubcode.propitious_octo_waddle.propitious_octo_waddle_domain.Assessment;
 import pl.lubcode.propitious_octo_waddle.propitious_octo_waddle_domain.Identificator;
 
 abstract class ApplicationServlet extends HttpServlet {
@@ -31,13 +34,36 @@ abstract class ApplicationServlet extends HttpServlet {
 	
 	protected final Account getUserAccount (HttpServletRequest request) {
 		Account loggedInUser = null;
+		HttpSession session = request.getSession(false);
+		if (session == null) {
+			return null;
+		}
 		try
 		{
-			loggedInUser = Account.getInstance(Identificator.<Account>valueOf(request.getSession( ).getAttribute(Account.class.getName( ) + ".id")));
+			loggedInUser = Account.getInstance(Identificator.<Account>valueOf((String)session.getAttribute(Account.class.getName( ) + ".id")));
 		} catch (NumberFormatException e) {
-			loggedInUser = null;
+			throw e;
+		} catch (NoSuchElementException e) {
+			return null;
 		}
 		return loggedInUser;
+	}
+	
+	protected final Assessment getCurrentAssessment (HttpServletRequest request) {
+		Assessment currentAssessment = null;
+		HttpSession session = request.getSession(false);
+		if (session == null) {
+			return null;
+		}
+		try
+		{
+			currentAssessment = Assessment.getInstance(Identificator.<Assessment>valueOf((String)session.getAttribute(Assessment.class.getName( ) + ".id")));
+		} catch (NumberFormatException e) {
+			throw e;
+		} catch (NoSuchElementException e) {
+			return null;
+		}
+		return currentAssessment;
 	}
 	
 	@Override

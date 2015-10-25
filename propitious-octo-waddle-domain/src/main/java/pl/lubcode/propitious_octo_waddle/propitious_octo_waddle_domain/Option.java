@@ -85,12 +85,22 @@ public final class Option implements Identifiable<Option>, Describable {
 		Task task,
 		String description, 
 		String rewardForNewOption
-	) {
+	) 
+	{
+		if (description == null || description.isEmpty( )) {
+			return null;
+		}
 		try
 		{
 			DataAccessObject dao = DataAccessObject.getInstance( );
-			Integer reward = Integer.valueOf(rewardForNewOption);
-			Data<Option> data = dao.<Option>retrieve("{CALL option_create (?, ?, ?, ?)}", creator.getId( ).longValue( ), task.getId( ).longValue( ), description, reward);
+			Short reward = 0;
+			try
+			{
+				reward = Short.valueOf(rewardForNewOption);
+			} catch (NumberFormatException e) {
+				reward = 0;
+			}
+			Data<Option> data = dao.<Option>store("{CALL option_create (?, ?, ?, ?::SMALLINT)}", creator.getId( ).longValue( ), task.getId( ).longValue( ), description, reward);
 			return new Option (data.getId( ), new PlainTextDescription (description), new Reward(reward));
 		} catch (DataAccessObjectException e) {
 			throw new RuntimeException ("Failed to retrieve options by task id.", e);

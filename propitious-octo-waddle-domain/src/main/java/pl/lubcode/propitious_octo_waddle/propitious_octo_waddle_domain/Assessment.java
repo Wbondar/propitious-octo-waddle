@@ -1,16 +1,23 @@
 package pl.lubcode.propitious_octo_waddle.propitious_octo_waddle_domain;
 
+import java.util.Collections;
+import java.util.Set;
+
 public final class Assessment implements Identifiable<Assessment> {
 	private final Identificator<Assessment> id;
-	private final Task task;
-	private final Student student;
-	private final int amountOfPoints;
+	private final Exam exam;
+	private final Account student;
+	private final Set<Task> tasks;
 	
-	private Assessment (Identificator<Assessment> id, Task task, Student student, int amountOfPoints) {
+	private Assessment (Identificator<Assessment> id, Account student, Exam exam, Set<Task> tasks) {
 		this.id = id;
-		this.task = task;
+		this.exam = exam;
 		this.student = student;
-		this.amountOfPoints = amountOfPoints;
+		this.tasks = tasks;
+	}
+	
+	private Assessment (Identificator<Assessment> id, Account student, Exam exam) {
+		this(id, student, exam, Collections.<Task>emptySet( ));
 	}
 	
 	@Override
@@ -18,11 +25,57 @@ public final class Assessment implements Identifiable<Assessment> {
 		return this.id;
 	}
 
-	public Task getTask() {
-		return task;
+	public Set<Task> getTasks() {
+		return tasks;
+	}
+	
+	public Exam getExam ( ) {
+		return this.exam;
 	}
 
-	public Student getStudent() {
+	public Account getStudent() {
 		return student;
+	}
+
+	public static Assessment newInstance(Exam exam, Account account) {
+		try
+		{
+			DataAccessObject dao = DataAccessObject.getInstance( );
+			Data<Assessment> data = dao.<Assessment>store("{CALL assessment_create(?, ?)}", exam.getId( ).longValue( ), account.getId( ).longValue( ));
+			if (data != null)
+			{
+				Identificator<Assessment> id = data.getId( );
+				if (id != null) {
+					return getInstance(id);	
+				}
+			}
+		} catch (DataAccessObjectException e) {
+			throw new RuntimeException ("Failed to create assessment.");
+		}
+		return null;
+	}
+
+	public static Assessment getInstance(Identificator<Assessment> id) {
+		try {
+			DataAccessObject dao = DataAccessObject.getInstance( );
+			Data<Task> data = dao.<Task>retrieve("SELECT * FROM standard_assessments WHERE id = ?;", id.longValue( ));
+			Identificator<Account> accountId = data.<Account>getId("student_id");
+			Identificator<Exam> examId = data.<Exam>getId("exam_id");
+			Exam exam = Exam.getInstance(examId);
+			if (exam == null) {
+				throw new RuntimeException ("Exam is missing.");
+			}
+			Account account = Account.getInstance(accountId);
+			if (account == null) {
+				throw new RuntimeException ("Student is missing.");
+			}
+			Set<Task> tasks = Task.getAssessmentInstances(id);
+			if (tasks != null && !tasks.isEmpty( )) {
+				return new Assessment (id, account, exam, tasks);	
+			}
+			return new Assessment (id, account, exam);
+		} catch (DataAccessObjectException e) {
+			throw new RuntimeException ("Failed to retrieve exam.", e);
+		}
 	}
 }
