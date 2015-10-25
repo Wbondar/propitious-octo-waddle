@@ -21,9 +21,6 @@ public final class SessionDestroy extends ApplicationServlet {
 	public void doPost (HttpServletRequest request, HttpServletResponse response)
 	throws IOException, ServletException 
 	{
-		HttpSession session = request.getSession(false);
-		if (session != null) {
-			session.invalidate( );
-		}
+		request.getSession( ).invalidate( );
 	}
 }

@@ -178,7 +178,7 @@ FROM assessments
 ;
 
 CREATE VIEW standard_assessments_tasks AS 
-SELECT assessments_tasks.assessment_id, standard_tasks.*
+SELECT DISTINCT assessments_tasks.assessment_id, standard_tasks.*
 FROM assessments_tasks JOIN standard_tasks ON assessments_tasks.task_id = standard_tasks.id
 ;
 
@@ -420,6 +420,14 @@ $$
 LANGUAGE PLpgSQL 
 STRICT 
 ;
+
+CREATE OR REPLACE RULE assessments_tasks_ignore_dublicates AS
+ON INSERT TO assessments_tasks
+WHERE (EXISTS ( SELECT a.task_id
+           FROM assessments_tasks AS a
+          WHERE CONCAT(a.assessment_id, a.task_id) = CONCAT(NEW.assessment_id, NEW.task_id))
+   ) DO INSTEAD NOTHING
+ ;
 
 CREATE FUNCTION assessment_create (arg_exam_id BIGINT, arg_student_id BIGINT)
 RETURNS SETOF standard_assessments 
